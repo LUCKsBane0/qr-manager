@@ -1,7 +1,7 @@
 import threading
 import time
 import segno
-import os
+import os,sys
 import os.path
 from sys import platform
 from PIL import Image
@@ -19,7 +19,11 @@ def kill_app():
 
 
 def flaskstuff(clipboard):
-    app = Flask(__name__)
+    base_dir = '.'
+    if hasattr(sys, '_MEIPASS'):
+        base_dir = os.path.join(sys._MEIPASS)
+    app = Flask(__name__,
+        template_folder=os.path.join(base_dir, 'templates'))
 
 
 
