@@ -3,14 +3,17 @@ import time
 import segno
 import os,sys
 import os.path
+from pathlib import Path
 from sys import platform
 from PIL import Image
 from pynput import keyboard
-from flask import Flask, render_template, send_file
+from werkzeug.utils import secure_filename
+from flask import Flask, render_template, send_file,request
 import socket
 currently_pressed = set()
 clipboard_glob = None
 flag = False
+render_flag = False
 
 
 def kill_app():
@@ -24,12 +27,28 @@ def flaskstuff(clipboard):
         base_dir = os.path.join(sys._MEIPASS)
     app = Flask(__name__,
         template_folder=os.path.join(base_dir, 'templates'))
+    Path("./Uploads").mkdir(parents=True, exist_ok=True)
 
+    app.config['UPLOAD_FOLDER'] = './Uploads'
+    app.config['MAX_CONTENT_PATH'] = 100000000
+
+    @app.route('/uploader', methods=['GET', 'POST'])
+    def upload_file():
+        if request.method == 'POST':
+            f = request.files['file']
+            UPLOAD_FOLDER = './Uploads'
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'],secure_filename(f.filename)))
+            thread = threading.Thread(target=kill_app)
+            thread.start()
+            return 'file uploaded successfully'
 
 
     @app.route("/")
-    def hello_world():
-        return render_template('index.html')
+    def renderer():
+        if not render_flag:
+            return render_template('index.html')
+        else:
+            return render_template('upload.html')
 
     @app.route('/download')
     def download():
@@ -55,7 +74,7 @@ def getqrlinux():
     clipboard = root.selection_get(selection="CLIPBOARD")
     global clipboard_glob
     clipboard_glob = clipboard
-    if not checkforfile(clipboard):
+    if not checkforfile(clipboard) and not render_flag:
         qrcode = segno.make(clipboard,micro=False)
         qrcode.save('Clipboard.png',scale = 10)
         qrpic = Image.open("Clipboard.png")
@@ -74,18 +93,21 @@ def getqrlinux():
         return
 
 def on_press(key):
-    combination = {keyboard.Key.ctrl,keyboard.Key.alt,keyboard.KeyCode(char='q')}
-
-    is_pressed = False
-    if key in combination:
+    combination_download = {keyboard.Key.ctrl,keyboard.Key.alt,keyboard.KeyCode(char='q')}
+    combination_upload = {keyboard.Key.ctrl,keyboard.Key.alt,keyboard.KeyCode(char='u')}
+    if key in combination_download or key in combination_upload:
         currently_pressed.add(key)
 
 
-    if currently_pressed == combination:
-        is_pressed = True
+    if currently_pressed == combination_download:
         getqrlinux()
         return False
 
+    if currently_pressed == combination_upload:
+        global render_flag
+        render_flag = True
+        getqrlinux()
+        return False
 
 
 if __name__ == "__main__":
