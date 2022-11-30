@@ -1,6 +1,13 @@
-# qr-manager
-Application to share links and files between devices
+# QR Manager
+##	Overall:
+The app runs as a standalone executable, so it doesnt need any other files attached.
+
 ## How to use:
-Open Application in Windows or Linux (files are in releases=
-Ctrl Alt Q for Links and Files from host to other device
-Ctrl Alt U for Files from other device to host
+		Ctrl+alt+q
+Automatically gets what's in your clipboard and depending on if it's a link or a file creates a qr code for the link directly or hosts a temporary localhost server for the file.
+
+		Ctrl+alt+u
+Creates a qr code and hosts a localhost server for file upload from other devices.
+### Note:
+
+A folder 'Uploads' will be created in the directory the executable is located in if it doesnt existe yet. This is where all uploaded files will be stored.
