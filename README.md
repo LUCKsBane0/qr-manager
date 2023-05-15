@@ -10,4 +10,4 @@ Automatically gets what's in your clipboard and depending on if it's a link or a
 Creates a qr code and hosts a localhost server for file upload from other devices.
 ### Note:
 
-A folder 'Uploads' will be created in the directory the executable is located in if it doesnt existe yet. This is where all uploaded files will be stored.
+A folder 'Uploads' will be created in the directory the executable is located in if it doesnt exist yet. This is where all uploaded files will be stored.
